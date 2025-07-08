@@ -1,0 +1,142 @@
+{% extends "admin_panel/navbar_admin.html" %}
+{% load static %}
+
+{% block title %}Panel AdministradorREDIMIR{% endblock %}
+
+{# ➊ CSS extra específico de este panel #}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/clientes.css' %}">
+{% endblock %}
+
+{% block main %}
+<h1 class="mb-4 text-dark">Gestion Clientes</h1>
+
+<!-- =====  tarjetas resumen  ===== -->
+<div class="row">
+  <div class="col-md-4">
+    <div class="card text-white bg-primary">
+      <div class="card-body">
+        <h5 class="card-title">Cantidad total de Clientes</h5>
+        <p class="card-text">None</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-white bg-success">
+      <div class="card-body">
+        <h5 class="card-title">Cliente con mayor cantidad de residuos</h5>
+        <p class="card-text">None</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-white bg-warning">
+      <div class="card-body">
+        <h5 class="card-title">(･ ͜ʖ ･)</h5>
+        <p class="card-text">None</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card mt-4">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6 border-end">
+        <h5 class="card-title mb-3">Generar Cliente</h5>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Nombre</label>
+                <input type="text" class="form-control" name="nombre" required />
+            </div>
+            <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Correo</label>
+              <input type="email" class="form-control" name="correo" required/>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Telefono</label>
+                <input type="number" class="form-control" name="telefono"/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Imagen (Opcional)</label>
+              <input type="file" class="form-control" name="imagen"/>
+            </div>
+            <div class="col-12 text-end">
+              <button type="submit" name="submit_cliente" class="btn btn-success btn-opcion">Registrar Cliente</button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <!-- Asignar Ubicación -->
+      <div class="col-md-6">
+        <h5 class="card-title mb-3">Asignar Ubicación</h5>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Cliente</label>
+            <select name="idCliente" id="id_idCliente" class="form-select">
+              {% for cliente in clientes_info %}
+              <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre de la calle</label>
+            <input type="text" class="form-control" id="id_calle" name="calle" maxlength="30" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input type="number" class="form-control" id="id_numero" name="numero" required />
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-success btn-opcion" name="submit_ubicacion">Asignar Ubicación</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-4">
+  <div class="card-body">
+    <h5 class="card-title">Lista de Clientes</h5>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>telefono</th>
+            <th>Ver Ubicaciones</th>
+            <th>Estado</th>
+            <th>Eliminar</th>
+            <th>Ver Perfil</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for cl in clientes_info %}
+            <tr>
+                <td>{{ cl.nombre }}</td>
+                <td>{{ cl.correo }}</td>
+                <td>{{ cl.telefono }}</td>
+                <td><a href="" class="btn btn-primary">Ubicaciones</a></td>
+                <td>{% if cl.estado %}<button type="button" class="btn btn-success" disabled>Activo</button>{% else %}<button type="button" class="btn btn-warning" disabled>Activo</button>{% endif %}</td>
+      <td>
+        <!-- botón/ícono eliminar (placeholder) -->
+        <button class="btn btn-sm btn-danger">X</button>
+      </td>
+      <td>
+        <!-- botón/ícono ver registros (placeholder) -->
+        <button class="btn btn-sm btn-secondary">Ver</button>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="text-center">Sin Clientes aun aún.</td></tr>
+  {% endfor %}
+</tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

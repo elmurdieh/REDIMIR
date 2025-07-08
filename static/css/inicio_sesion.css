@@ -1,0 +1,128 @@
+:root {
+  --color-verde: rgb(149, 191, 60);
+  --color-blanco: rgb(255, 255, 255);
+  --color-negro: rgb(24, 24, 24);
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+}
+.carousel-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1; /* Envía el fondo detrás del contenido */
+}
+
+.carousel-bg .carousel-item {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  position: absolute; /* Para superponer los elementos */
+  opacity: 0;
+  transition: opacity 2s ease-in-out; /* Transición de desvanecimiento */
+}
+
+.carousel-bg .carousel-item.active {
+  opacity: 1;
+}
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative; /* Para que el contenido esté sobre el fondo */
+  z-index: 1;
+}
+
+/* Estilos de la tarjeta de inicio de sesión - AHORA CON COLORES PLANOS Y ESTRUCTURA MEJORADA */
+.login-card {
+  background-color: var(--color-negro); /* Fondo negro plano */
+  border-radius: 1rem; /* Bordes redondeados */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 8px 10px -6px rgba(0, 0, 0, 0.5); /* Sombra para contraste */
+  padding: 2rem; /* Reduce el padding general para hacerla más compacta */
+  border: 1px solid var(--color-verde); /* Borde verde para destacar */
+  max-width: 400px; /* Limita el ancho máximo para hacerla más compacta */
+  width: 100%; /* Asegura que ocupe todo el ancho disponible hasta el max-width */
+}
+
+.login-card h1 {
+  font-size: 2.5rem; /* Reduce el tamaño del título "REDIMIR" */
+  margin-bottom: 0.5rem; /* Ajusta el margen inferior */
+  color: var(--color-blanco);
+}
+.login-card h2 {
+  font-size: 1.5rem; /* Reduce el tamaño del subtítulo */
+  margin-bottom: 0.25rem; /* Ajusta el margen inferior */
+  color: var(--color-blanco);
+}
+.login-card p.subtitle {
+  font-size: 0.9rem; /* Reduce el tamaño del párrafo de subtítulo */
+  margin-bottom: 1.5rem; /* Ajusta el margen inferior para separar del formulario */
+  color: var(--color-blanco);
+  opacity: 0.7; /* Ligeramente más tenue */
+}
+
+.form-label {
+  color: var(--color-blanco);
+  font-size: 0.9rem; /* Reduce el tamaño de la etiqueta */
+  margin-bottom: 0.25rem; /* Menos espacio entre label e input */
+}
+
+.form-control {
+  background-color: var(--color-blanco); /* Campos de entrada blancos */
+  border: 1px solid var(--color-negro); /* Borde negro para los campos */
+  color: var(--color-negro); /* Texto negro en los campos */
+  padding: 0.6rem 1rem; /* Reduce el padding para hacer los inputs más delgados */
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.form-control::placeholder {
+  color: rgba(var(--color-negro-rgb), 0.6); /* Placeholder en tono de negro */
+}
+
+.form-control:focus {
+  background-color: var(--color-blanco);
+  border-color: var(--color-verde); /* Borde verde al enfocar */
+  box-shadow: 0 0 0 0.15rem rgba(var(--color-verde-rgb), 0.2); /* Sombra más sutil al enfocar */
+  color: var(--color-negro);
+}
+
+.text-link {
+  color: var(--color-verde);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-size: 0.85rem; /* Reduce el tamaño del link de "Olvidaste contraseña" */
+}
+
+.text-link:hover {
+  color: rgb(134, 172, 54); /* Verde ligeramente más oscuro al pasar el mouse */
+}
+
+.btn-primary-custom {
+  background-color: var(--color-verde);
+  border-color: var(--color-verde);
+  color: var(--color-negro); /* Texto negro en el botón verde */
+  font-weight: bold;
+  padding: 0.7rem 1.5rem; /* Ajusta el padding del botón */
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(var(--color-verde-rgb), 0.3);
+  font-size: 1rem; /* Ajusta el tamaño de la fuente del botón */
+}
+
+.btn-primary-custom:hover {
+  background-color: rgb(134, 172, 54); /* Verde ligeramente más oscuro */
+  border-color: rgb(134, 172, 54);
+  color: var(--color-negro);
+  transform: translateY(-2px); /* Pequeño efecto al pasar el mouse */
+  box-shadow: 0 6px 8px rgba(var(--color-verde-rgb), 0.4);
+}

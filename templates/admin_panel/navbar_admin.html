@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}REDIMIR{% endblock %}</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{% static 'css/navbar_admin.css' %}" />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+    <div id="sidebar">
+      <div class="logo text-center mb-4">
+        <img src="{% static 'img/logo.png' %}" alt="REDIMIR" />
+      </div>
+      <ul class="nav flex-column px-2 flex-grow-1">
+        <li class="nav-item">
+          <a
+            class="nav-link {% if active == 'panel' %}active{% endif %}"
+            href="{% url 'admin_panel' %}"
+            >Panel Administrador</a
+          >
+        </li>
+
+        <li class="nav-item">
+          <a
+            class="nav-link {% if active == 'registros' %}active{% endif %}"
+            href="{% url 'registros_crud' %}"
+            >Registros</a
+          >
+        </li>
+
+        <li class="nav-item">
+          <a
+            class="nav-link {% if active == 'operadores' %}active{% endif %}"
+            href="{% url 'operadores_crud' %}"
+            >Operadores</a
+          >
+        </li>
+
+        <li class="nav-item">
+          <a
+            class="nav-link {% if active == 'clientes' %}active{% endif %}"
+            href="{% url 'clientes_crud' %}"
+            >Clientes</a
+          >
+        </li>
+      </ul>
+      <div class="px-2">
+        <a class="nav-link nav-logout" href="{% url 'logout_admin' %}">Cerrar sesión</a>
+      </div>
+    </div>
+    <div id="main-content">{% block main %}{% endblock %}</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
