@@ -61,6 +61,7 @@ def generar_certificado(request):
         'clientes_info': clientes_info,
     })
 
+
 def generarCertificado(request):
     if not request.session.get('admin_id'):
         messages.warning(request, "Debes iniciar sesión para generar certificados.")
@@ -76,11 +77,107 @@ def generarCertificado(request):
             messages.error(request, "Completa todos los campos para generar el certificado.")
             return redirect('generar_certificado')
 
-        if tipo == "2":
-            # Futuro certificado: Eco Equivalencia
-            messages.info(request, "El certificado de Eco Equivalencia está en desarrollo.")
+        try:
+            cliente_id = int(cliente_id)
+            anio = int(anio)
+            mes = int(mes)
+        except ValueError:
+            messages.error(request, "Datos de cliente, año o mes inválidos.")
             return redirect('generar_certificado')
+        if tipo == "2":
+            residuos = Residuos.objects.filter(
+                idCliente_id=cliente_id,
+                fechaRegistro__year=anio,
+                fechaRegistro__month=mes
+                )
 
+            eco_tipos = {
+                'pallet1': 'palets',
+                'carton1': 'carton',
+                'papel1': 'papel',
+                'plastico1': 'plastico',
+                'aluminio1': 'latas',
+                'tetrapak1': 'tetrapack'
+            }
+
+            totales = {clave: 0.0 for clave in eco_tipos.keys()}
+
+            for r in residuos:
+                for clave, campo in eco_tipos.items():
+                    valor = getattr(r, campo)
+                    if valor:
+                        totales[clave] += float(valor)
+
+            total_eco = sum(totales.values())
+
+            cliente = Cliente.objects.get(id=cliente_id)
+            try:
+                locale.setlocale(locale.LC_TIME, 'es_CL.utf8')
+            except locale.Error:
+                try:
+                    locale.setlocale(locale.LC_TIME, 'Spanish_Chile.1252')
+                except locale.Error:
+                    locale.setlocale(locale.LC_TIME, '')
+            fecha_actual = datetime.now().strftime("%A, %d DE %B %Y").upper()
+            nombre_mes = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"][mes - 1]
+
+            ruta_plantilla = os.path.join(settings.MEDIA_ROOT, 'plantillas', 'plantillaEco.docx')
+            try:
+                doc = Document(ruta_plantilla)
+            except Exception as e:
+                messages.error(request, f"Error al cargar la plantilla: {e}")
+                return redirect('generar_certificado')
+
+            for tabla in doc.tables:
+                for fila in tabla.rows:
+                    for celda in fila.cells:
+                        for clave, valor in totales.items():
+                            if clave in celda.text:
+                                celda.text = celda.text.replace(clave, f"{valor:.1f}")
+                        if "Total1" in celda.text:
+                            celda.text = celda.text.replace("Total1", f"{total_eco:.1f}")
+                        if "Cliente1" in celda.text:
+                            celda.text = celda.text.replace("Cliente1", cliente.nombre)
+                        if "Mes1" in celda.text:
+                            celda.text = celda.text.replace("Mes1", nombre_mes)
+
+            for p in doc.paragraphs:
+                if "FechaCreacion" in p.text:
+                    p.text = p.text.replace("FechaCreacion", fecha_actual)
+
+            temp_dir = os.path.join(settings.BASE_DIR, 'temp_certs')
+            os.makedirs(temp_dir, exist_ok=True)
+
+            nombre_docx = f"TEMP_ECO_{cliente_id}_{anio}_{mes}_{timezone.now().timestamp()}.docx"
+            ruta_docx = os.path.join(temp_dir, nombre_docx)
+            doc.save(ruta_docx)
+
+            nombre_pdf = f"Certificado_Eco_{cliente_id}_{anio}_{mes}.pdf"
+            ruta_pdf = os.path.join(temp_dir, nombre_pdf)
+
+            try:
+                convert(ruta_docx, ruta_pdf)
+            except Exception as e:
+                messages.error(request, f"Error al convertir a PDF: {e}")
+                return redirect('generar_certificado')
+
+            def borrar_temporales():
+                time.sleep(10)
+                for f in [ruta_docx, ruta_pdf]:
+                    try:
+                        os.remove(f)
+                    except Exception:
+                        pass
+
+            try:
+                pdf = open(ruta_pdf, 'rb')
+                response = FileResponse(pdf, content_type='application/pdf')
+                response['Content-Disposition'] = f'attachment; filename="{nombre_pdf}"'
+                threading.Thread(target=borrar_temporales).start()
+                return response
+            except Exception as e:
+                messages.error(request, f"Error inesperado: {e}")
+                return redirect('generar_certificado')
         try:
             cliente_id = int(cliente_id)
             anio = int(anio)

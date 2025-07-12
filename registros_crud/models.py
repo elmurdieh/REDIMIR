@@ -13,14 +13,14 @@ class Residuos(models.Model):
     papel = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
     carton = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
     film = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
-    botellas = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
+    #botellas = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
     latas = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
     palets = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
     palets_cantidad = models.IntegerField(null=True, blank=True)
     chatarra = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
     vidrio = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
     tetrapack = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
-    foto = models.ImageField(upload_to='static/img/fotos/', null=True, blank=True)
+    foto = models.ImageField(upload_to='img/fotos/', null=True, blank=True)
 
 class Certificado(models.Model):
     idcliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
