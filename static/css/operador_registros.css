@@ -1,0 +1,27 @@
+/* Estilo para el botón de "nulo" */
+    .null-indicator-btn {
+        background-color: #dc3545; /* Rojo de Bootstrap (danger) */
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: not-allowed;
+        font-weight: bold;
+        width: 30px; /* Ancho fijo para que todos los botones sean iguales */
+        height: 30px; /* Alto fijo */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: auto; /* Centrar el botón en la celda */
+    }
+
+    /* Estilo para las celdas de la tabla para centrar el contenido */
+    .table td, .table th {
+        vertical-align: middle;
+        text-align: center; /* Centra el texto y los botones */
+    }
+
+    /* Ajustes para encabezados de tabla */
+    .table thead th {
+        white-space: nowrap; /* Evita que el texto de los encabezados se rompa */
+    }

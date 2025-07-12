@@ -24,9 +24,14 @@ import time
 def index(request):
     if request.session.get("admin_id"):
         return redirect("admin_panel")
+    if request.session.get("operador_id"):
+        return redirect("operador_panel")  # <- redirige a la app operador_panel
+
     if request.method == "POST":
         rut = request.POST.get("rut", "").strip()
         pwd = request.POST.get("password", "")
+
+        # Intentar login como admin
         try:
             admin = Administrador.objects.get(rut=rut)
             if check_password(pwd, admin.contraseña):
@@ -35,7 +40,19 @@ def index(request):
                 return redirect("admin_panel")
         except Administrador.DoesNotExist:
             pass
+
+        # Intentar login como operador
+        try:
+            operador = Operador.objects.get(rut=rut)
+            if check_password(pwd, operador.contraseña):
+                request.session["operador_id"] = operador.id
+                request.session["operador_nombre"] = operador.nombre
+                return redirect("operador_panel")  # <- Redirección a interfaz operador
+        except Operador.DoesNotExist:
+            pass
+
         messages.error(request, "RUT o contraseña incorrecta")
+
     return render(request, "admin_panel/inicio_sesion.html")
 
 @admin_required
