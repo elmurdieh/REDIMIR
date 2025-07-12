@@ -17,6 +17,8 @@ from docx.shared import Pt
 from docx.oxml.ns import qn
 import os, time, threading
 from docx2pdf import convert
+import threading
+import time
 
 
 def index(request):
@@ -62,238 +64,202 @@ def generar_certificado(request):
     })
 
 
+def procesarYResponderCertificado(doc, nombre_docx, nombre_pdf, request):
+    import os
+    import time
+    from django.http import FileResponse
+    from django.utils import timezone
+
+    temp_dir = os.path.join(settings.BASE_DIR, 'temp_certs')
+    os.makedirs(temp_dir, exist_ok=True)
+
+    ruta_docx = os.path.join(temp_dir, nombre_docx)
+    ruta_pdf = os.path.join(temp_dir, nombre_pdf)
+    doc.save(ruta_docx)
+
+    try:
+        convert(ruta_docx, ruta_pdf)
+    except Exception as e:
+        messages.error(request, f"Error al convertir a PDF: {e}")
+        return redirect('generar_certificado')
+
+    def borrar_temporales():
+        time.sleep(10)
+        for f in [ruta_docx, ruta_pdf]:
+            try:
+                os.remove(f)
+            except Exception:
+                pass
+
+    try:
+        pdf = open(ruta_pdf, 'rb')
+        response = FileResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{nombre_pdf}"'
+        threading.Thread(target=borrar_temporales).start()
+        return response
+    except Exception as e:
+        messages.error(request, f"Error inesperado: {e}")
+        return redirect('generar_certificado')
+
 def generarCertificado(request):
     if not request.session.get('admin_id'):
         messages.warning(request, "Debes iniciar sesión para generar certificados.")
         return redirect('admin_panel')
 
-    if request.method == 'POST':
-        cliente_id = request.POST.get('cliente_id')
-        anio = request.POST.get('anio')
-        mes = request.POST.get('mes')
-        tipo = request.POST.get('tipo_certificado')
+    if request.method != 'POST':
+        messages.error(request, "Método no permitido.")
+        return redirect('generar_certificado')
 
-        if not all([cliente_id, anio, mes, tipo]):
-            messages.error(request, "Completa todos los campos para generar el certificado.")
-            return redirect('generar_certificado')
+    cliente_id = request.POST.get('cliente_id')
+    anio = request.POST.get('anio')
+    mes = request.POST.get('mes')
+    tipo = request.POST.get('tipo_certificado')
 
+    if not all([cliente_id, anio, mes, tipo]):
+        messages.error(request, "Completa todos los campos para generar el certificado.")
+        return redirect('generar_certificado')
+
+    try:
+        cliente_id = int(cliente_id)
+        anio = int(anio)
+        mes = int(mes)
+    except ValueError:
+        messages.error(request, "Datos de cliente, año o mes inválidos.")
+        return redirect('generar_certificado')
+
+    cliente = Cliente.objects.get(id=cliente_id)
+    residuos = Residuos.objects.filter(idCliente_id=cliente_id, fechaRegistro__year=anio, fechaRegistro__month=mes)
+
+    try:
+        locale.setlocale(locale.LC_TIME, 'es_CL.utf8')
+    except locale.Error:
         try:
-            cliente_id = int(cliente_id)
-            anio = int(anio)
-            mes = int(mes)
-        except ValueError:
-            messages.error(request, "Datos de cliente, año o mes inválidos.")
-            return redirect('generar_certificado')
-        if tipo == "2":
-            residuos = Residuos.objects.filter(
-                idCliente_id=cliente_id,
-                fechaRegistro__year=anio,
-                fechaRegistro__month=mes
-                )
+            locale.setlocale(locale.LC_TIME, 'Spanish_Chile.1252')
+        except locale.Error:
+            locale.setlocale(locale.LC_TIME, '')
 
-            eco_tipos = {
-                'pallet1': 'palets',
-                'carton1': 'carton',
-                'papel1': 'papel',
-                'plastico1': 'plastico',
-                'aluminio1': 'latas',
-                'tetrapak1': 'tetrapack'
-            }
+    fecha_actual = datetime.now().strftime("%A, %d DE %B %Y").upper()
+    nombre_mes = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"][mes - 1]
 
-            totales = {clave: 0.0 for clave in eco_tipos.keys()}
-
-            for r in residuos:
-                for clave, campo in eco_tipos.items():
-                    valor = getattr(r, campo)
-                    if valor:
-                        totales[clave] += float(valor)
-
-            total_eco = sum(totales.values())
-
-            cliente = Cliente.objects.get(id=cliente_id)
-            try:
-                locale.setlocale(locale.LC_TIME, 'es_CL.utf8')
-            except locale.Error:
-                try:
-                    locale.setlocale(locale.LC_TIME, 'Spanish_Chile.1252')
-                except locale.Error:
-                    locale.setlocale(locale.LC_TIME, '')
-            fecha_actual = datetime.now().strftime("%A, %d DE %B %Y").upper()
-            nombre_mes = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"][mes - 1]
-
-            ruta_plantilla = os.path.join(settings.MEDIA_ROOT, 'plantillas', 'plantillaEco.docx')
-            try:
-                doc = Document(ruta_plantilla)
-            except Exception as e:
-                messages.error(request, f"Error al cargar la plantilla: {e}")
-                return redirect('generar_certificado')
-
-            for tabla in doc.tables:
-                for fila in tabla.rows:
-                    for celda in fila.cells:
-                        for clave, valor in totales.items():
-                            if clave in celda.text:
-                                celda.text = celda.text.replace(clave, f"{valor:.1f}")
-                        if "Total1" in celda.text:
-                            celda.text = celda.text.replace("Total1", f"{total_eco:.1f}")
-                        if "Cliente1" in celda.text:
-                            celda.text = celda.text.replace("Cliente1", cliente.nombre)
-                        if "Mes1" in celda.text:
-                            celda.text = celda.text.replace("Mes1", nombre_mes)
-
-            for p in doc.paragraphs:
-                if "FechaCreacion" in p.text:
-                    p.text = p.text.replace("FechaCreacion", fecha_actual)
-
-            temp_dir = os.path.join(settings.BASE_DIR, 'temp_certs')
-            os.makedirs(temp_dir, exist_ok=True)
-
-            nombre_docx = f"TEMP_ECO_{cliente_id}_{anio}_{mes}_{timezone.now().timestamp()}.docx"
-            ruta_docx = os.path.join(temp_dir, nombre_docx)
-            doc.save(ruta_docx)
-
-            nombre_pdf = f"Certificado_Eco_{cliente_id}_{anio}_{mes}.pdf"
-            ruta_pdf = os.path.join(temp_dir, nombre_pdf)
-
-            try:
-                convert(ruta_docx, ruta_pdf)
-            except Exception as e:
-                messages.error(request, f"Error al convertir a PDF: {e}")
-                return redirect('generar_certificado')
-
-            def borrar_temporales():
-                time.sleep(10)
-                for f in [ruta_docx, ruta_pdf]:
-                    try:
-                        os.remove(f)
-                    except Exception:
-                        pass
-
-            try:
-                pdf = open(ruta_pdf, 'rb')
-                response = FileResponse(pdf, content_type='application/pdf')
-                response['Content-Disposition'] = f'attachment; filename="{nombre_pdf}"'
-                threading.Thread(target=borrar_temporales).start()
-                return response
-            except Exception as e:
-                messages.error(request, f"Error inesperado: {e}")
-                return redirect('generar_certificado')
-        try:
-            cliente_id = int(cliente_id)
-            anio = int(anio)
-            mes = int(mes)
-        except ValueError:
-            messages.error(request, "Datos de cliente, año o mes inválidos.")
-            return redirect('generar_certificado')
-
-        residuos = Residuos.objects.filter(
-            idCliente_id=cliente_id,
-            fechaRegistro__year=anio,
-            fechaRegistro__month=mes
-        )
-
-        tipos_residuos = ["plastico", "papel", "carton", "film", "botellas", "latas", "palets", "chatarra", "vidrio", "tetrapack"]
-        totales = {tipo: 0.0 for tipo in tipos_residuos}
+    if tipo == "2":
+        eco_tipos = {
+            'pallet1': 'palets',
+            'carton1': 'carton',
+            'papel1': 'papel',
+            'plastico1': 'plastico',
+            'aluminio1': 'latas',
+            'tetrapak1': 'tetrapack'
+        }
+        totales = {clave: 0.0 for clave in eco_tipos.keys()}
+        total_vidrio = 0.0
 
         for r in residuos:
-            for tipo in tipos_residuos:
-                valor = getattr(r, tipo)
+            for clave, campo in eco_tipos.items():
+                valor = getattr(r, campo)
                 if valor:
-                    totales[tipo] += float(valor)
+                    totales[clave] += float(valor)
+            if hasattr(r, 'vidrio') and r.vidrio is not None:
+                total_vidrio += float(r.vidrio)
 
-        resumen = [f"{tipo.capitalize()}: {totales[tipo]:.1f}" for tipo in tipos_residuos if totales[tipo] > 0]
-        if not resumen:
-            messages.warning(request, "No se encontraron registros para el cliente y mes seleccionado.")
-            return redirect('generar_certificado')
+        total_plastico = totales.get('plastico1', 0.0)
+        total_carton = totales.get('carton1', 0.0)
+        total_papel = totales.get('papel1', 0.0)
+        total_palets = totales.get('pallet1', 0.0)
 
-        texto = "\n".join(resumen)
-        total_kg = sum(totales.values())
+        com1 = round((total_plastico * 1000 / 500) + (total_vidrio * 1000 / 500))
+        ene1 = round((total_plastico * 5) + ((total_carton + total_papel) * 7000 / 1000) + (total_vidrio * 670 / 1000))
+        emi1 = round((total_plastico * 2.5) + ((total_carton + total_papel) * 7000 / 1000) + (total_vidrio * 1300 / 100))
+        agua1 = round((total_plastico * 36.26) + ((total_carton + total_papel) * 270000 / 1000))
+        arb_calc = (total_palets * 1 / 10) + ((total_carton + total_papel) * 17 / 1000)
+        arb1 = round(arb_calc) if arb_calc >= 1 else 0
 
-        cliente = Cliente.objects.get(id=cliente_id)
-        try:
-            locale.setlocale(locale.LC_TIME, 'es_CL.utf8')  # Linux/Mac
-        except locale.Error:
-            try:
-                locale.setlocale(locale.LC_TIME, 'Spanish_Chile.1252')  # Windows
-            except locale.Error:
-                locale.setlocale(locale.LC_TIME, '')
-        fecha_actual = datetime.now().strftime("%A, %d DE %B %Y").upper()
-        nombre_mes = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"][mes - 1]
+        total_eco = sum(totales.values()) + total_vidrio
 
-        ruta_plantilla = os.path.join(settings.MEDIA_ROOT, 'plantillas', 'plantillaCttr.docx')
-        try:
-            doc = Document(ruta_plantilla)
-        except Exception as e:
-            messages.error(request, f"Error al cargar la plantilla: {e}")
-            return redirect('generar_certificado')
+        ruta_plantilla = os.path.join(settings.MEDIA_ROOT, 'plantillas', 'plantillaEco.docx')
+        doc = Document(ruta_plantilla)
 
-        fuente = "Carmen Sans SemiBold"
         for tabla in doc.tables:
             for fila in tabla.rows:
                 for celda in fila.cells:
-                    if "Residuos1" in celda.text:
-                        celda.text = ""
-                        p = celda.paragraphs[0]
-                        run = p.add_run(texto)
-                        run.font.name = fuente
-                        run.font.size = Pt(8)
-                        run._element.rPr.rFonts.set(qn('w:eastAsia'), fuente)
-                    elif "Total1" in celda.text:
-                        celda.text = ""
-                        p = celda.paragraphs[0]
-                        run = p.add_run(f"{total_kg:.1f} kg")
-                        run.font.name = fuente
-                        run.font.size = Pt(8)
-                        run._element.rPr.rFonts.set(qn('w:eastAsia'), fuente)
-                    elif "Cliente1" in celda.text:
-                        celda.text = ""
-                        p = celda.paragraphs[0]
-                        run = p.add_run(cliente.nombre)
-                        run.font.name = fuente
-                        run.font.size = Pt(8)
-                        run._element.rPr.rFonts.set(qn('w:eastAsia'), fuente)
+                    for clave, valor in totales.items():
+                        if clave in celda.text:
+                            celda.text = celda.text.replace(clave, f"{valor:.1f}")
+                    if "vidrio1" in celda.text:
+                        celda.text = celda.text.replace("vidrio1", f"{total_vidrio:.1f}")
+                    if "Total1" in celda.text:
+                        celda.text = celda.text.replace("Total1", f"{total_eco:.1f}")
 
-        # Reemplazar fuera de las tablas
         for p in doc.paragraphs:
-            if "FechaCreacion" in p.text:
-                p.text = p.text.replace("FechaCreacion", fecha_actual)
-            if "Mes1" in p.text:
-                p.text = p.text.replace("Mes1", nombre_mes)
-            if "Anio1" in p.text:
-                p.text = p.text.replace("Anio1", str(anio))
+            for run in p.runs:
+                if "FechaCreacion" in run.text:
+                    run.text = run.text.replace("FechaCreacion", fecha_actual)
+                if "Cliente1" in run.text:
+                    run.text = run.text.replace("Cliente1", cliente.nombre)
+                if "Mes1" in run.text:
+                    run.text = run.text.replace("Mes1", nombre_mes)
+                for clave, valor in {"com1": com1, "ene1": ene1, "emi1": emi1, "agua1": agua1, "arb1": arb1}.items():
+                    if clave in run.text:
+                        run.text = run.text.replace(clave, str(valor))
+                        run.font.name = 'Calibri'
+                        run.bold = True
+                        run.font.size = Pt(19)
+                        run._element.rPr.rFonts.set(qn('w:eastAsia'), 'Calibri')
 
-        temp_dir = os.path.join(settings.BASE_DIR, 'temp_certs')
-        os.makedirs(temp_dir, exist_ok=True)
+        return procesarYResponderCertificado(doc, f"TEMP_ECO_{cliente_id}_{anio}_{mes}_{timezone.now().timestamp()}.docx", f"Certificado_Eco_{cliente_id}_{anio}_{mes}.pdf", request)
 
-        nombre_docx = f"TEMP_CTTR_{cliente_id}_{anio}_{mes}_{timezone.now().timestamp()}.docx"
-        ruta_docx = os.path.join(temp_dir, nombre_docx)
-        doc.save(ruta_docx)
-        nombre_pdf = f"Certificado_CTTR_{cliente_id}_{anio}_{mes}.pdf"
-        ruta_pdf = os.path.join(temp_dir, nombre_pdf)
+    # Certificado tipo 1 (CTTR)
+    tipos_residuos = ["plastico", "papel", "carton", "film", "latas", "palets", "chatarra", "vidrio", "tetrapack"]
+    totales = {tipo: 0.0 for tipo in tipos_residuos}
 
-        try:
-            convert(ruta_docx, ruta_pdf)
-        except Exception as e:
-            messages.error(request, f"Error al convertir a PDF: {e}")
-            return redirect('generar_certificado')
+    for r in residuos:
+        for tipo in tipos_residuos:
+            valor = getattr(r, tipo)
+            if valor:
+                totales[tipo] += float(valor)
 
-        def borrar_temporales():
-            time.sleep(10)
-            for f in [ruta_docx, ruta_pdf]:
-                try:
-                    os.remove(f)
-                except Exception:
-                    pass
+    resumen = [f"{tipo.capitalize()}: {totales[tipo]:.1f}" for tipo in tipos_residuos if totales[tipo] > 0]
+    if not resumen:
+        messages.warning(request, "No se encontraron registros para el cliente y mes seleccionado.")
+        return redirect('generar_certificado')
 
-        try:
-            pdf = open(ruta_pdf, 'rb')
-            response = FileResponse(pdf, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="{nombre_pdf}"'
-            threading.Thread(target=borrar_temporales).start()
-            return response
-        except Exception as e:
-            messages.error(request, f"Error inesperado: {e}")
-            return redirect('generar_certificado')
+    texto = "\n".join(resumen)
+    total_kg = sum(totales.values())
 
-    messages.error(request, "Método no permitido.")
-    return redirect('generar_certificado')
+    ruta_plantilla = os.path.join(settings.MEDIA_ROOT, 'plantillas', 'plantillaCttr.docx')
+    doc = Document(ruta_plantilla)
+    fuente = "Carmen Sans SemiBold"
+
+    for tabla in doc.tables:
+        for fila in tabla.rows:
+            for celda in fila.cells:
+                if "Residuos1" in celda.text:
+                    celda.text = ""
+                    p = celda.paragraphs[0]
+                    run = p.add_run(texto)
+                    run.font.name = fuente
+                    run.font.size = Pt(8)
+                    run._element.rPr.rFonts.set(qn('w:eastAsia'), fuente)
+                elif "Total1" in celda.text:
+                    celda.text = ""
+                    p = celda.paragraphs[0]
+                    run = p.add_run(f"{total_kg:.1f} kg")
+                    run.font.name = fuente
+                    run.font.size = Pt(8)
+                    run._element.rPr.rFonts.set(qn('w:eastAsia'), fuente)
+                elif "Cliente1" in celda.text:
+                    celda.text = ""
+                    p = celda.paragraphs[0]
+                    run = p.add_run(cliente.nombre)
+                    run.font.name = fuente
+                    run.font.size = Pt(8)
+                    run._element.rPr.rFonts.set(qn('w:eastAsia'), fuente)
+
+    for p in doc.paragraphs:
+        if "FechaCreacion" in p.text:
+            p.text = p.text.replace("FechaCreacion", fecha_actual)
+        if "Mes1" in p.text:
+            p.text = p.text.replace("Mes1", nombre_mes)
+        if "Anio1" in p.text:
+            p.text = p.text.replace("Anio1", str(anio))
+
+    return procesarYResponderCertificado(doc, f"TEMP_CTTR_{cliente_id}_{anio}_{mes}_{timezone.now().timestamp()}.docx", f"Certificado_CTTR_{cliente_id}_{anio}_{mes}.pdf", request)
