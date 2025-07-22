@@ -11,13 +11,12 @@
 {% block main %}
 <h1 class="mb-4 text-dark">Panel Administrador</h1>
 
-<!-- =====  tarjetas resumen  ===== -->
 <div class="row">
   <div class="col-md-4">
     <div class="card text-white bg-primary">
       <div class="card-body">
         <h5 class="card-title">Cantidad total de este Mes</h5>
-        <p class="card-text">1.250 Kg</p>
+        <p class="card-text">{{ total_mes_kg|floatformat:1 }} Kg</p>
       </div>
     </div>
   </div>
@@ -25,32 +24,31 @@
     <div class="card text-white bg-success">
       <div class="card-body">
         <h5 class="card-title">Registros de este Mes</h5>
-        <p class="card-text">35</p>
+        <p class="card-text">{{ cantidad_registros_mes }}</p>
       </div>
     </div>
   </div>
   <div class="col-md-4">
     <div class="card text-white bg-warning">
       <div class="card-body">
-        <h5 class="card-title">Desecho con mas cantidad</h5>
-        <p class="card-text">7</p>
+        <h5 class="card-title">Desecho con mas cantidad este Mes</h5>
+        <p class="card-text">{{ desecho_mas_cantidad }}</p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- =====  acciones rápidas  ===== -->
+
 <div class="card mt-4">
   <div class="card-body">
     <h5 class="card-title">Generar Certificados</h5>
     <div class="d-flex btn-group-row">
       <a href="{% url 'generar_certificado' %}" class="btn btn-info">Generar Certificado</a>
-      <button type="button" class="btn btn-secondary">Importar Excel</button>
     </div>
   </div>
 </div>
 
-<!-- =====  registros recientes  ===== -->
+
 <div class="card mt-4">
   <div class="card-body">
     <h5 class="card-title">Registros Recientes</h5>
@@ -84,20 +82,80 @@
                 <td>{{ re.idCliente.nombre }}</td>
                 <td>{{ re.fechaRegistro }}</td>
                 <td>{{ re.idUbicacion.calle }} {{ re.idUbicacion.numero }}</td>
-                <td>{{ re.plastico }}</td>
-                <td>{{ re.carton }}</td>
-                <td>{{ re.papel }}</td>
-                <td>{{ re.film }}</td>
-                <td>{{ re.latas }}</td>
-                <td>{{ re.palets }}</td>
-                <td>{{ re.palets_cantidad }}</td>
-                <td>{{ re.chatarra }}</td>
-                <td>{{ re.vidrio }}</td>
-                <td>{{ re.tetrapack }}</td>
-              </tr>
-  {% empty %}
-    <tr><td colspan="15" class="text-center">Sin Registros aún.</td></tr>
-  {% endfor %}
+                <td>
+                            {% if re.plastico is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.plastico }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.carton is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.carton }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.papel is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.papel }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.film is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.film }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.latas is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.latas }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.palets is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.palets }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.palets_cantidad is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.palets_cantidad }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.chatarra is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.chatarra }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.vidrio is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.vidrio }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if re.tetrapack is None %}
+                                <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                            {% else %}
+                                {{ re.tetrapack }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="14" class="text-center">Sin Registros aún.</td></tr>
+                    {% endfor %}
 </tbody>
       </table>
     </div>

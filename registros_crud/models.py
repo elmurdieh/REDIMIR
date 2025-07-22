@@ -23,11 +23,7 @@ class Residuos(models.Model):
     foto = models.ImageField(upload_to='img/fotos/', null=True, blank=True)
 
 class Certificado(models.Model):
-    idcliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    idCliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     idAdministrador = models.ForeignKey(Administrador, on_delete=models.CASCADE)
-    fechaCreacion = models.DateTimeField(auto_now_add=True)
-    tipo = models.CharField(max_length=4)
-
-class Conforma(models.Model):
-    idResiduo = models.ForeignKey(Residuos, on_delete=models.CASCADE)
-    idCertificado = models.ForeignKey(Certificado, on_delete=models.CASCADE)
+    fechaCreacion = models.DateField()
+    tipoCertificado = models.CharField(max_length=5)

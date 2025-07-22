@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 from django.http import FileResponse
+from django.db.models import Sum
+from django.db.models.functions import ExtractMonth, ExtractYear
 from .models import Administrador
 from registros_crud.models import *
 from clientes_crud.models import *
@@ -25,13 +27,12 @@ def index(request):
     if request.session.get("admin_id"):
         return redirect("admin_panel")
     if request.session.get("operador_id"):
-        return redirect("operador_panel")  # <- redirige a la app operador_panel
+        return redirect("operador_panel")
 
     if request.method == "POST":
         rut = request.POST.get("rut", "").strip()
         pwd = request.POST.get("password", "")
 
-        # Intentar login como admin
         try:
             admin = Administrador.objects.get(rut=rut)
             if check_password(pwd, admin.contraseña):
@@ -41,13 +42,15 @@ def index(request):
         except Administrador.DoesNotExist:
             pass
 
-        # Intentar login como operador
         try:
             operador = Operador.objects.get(rut=rut)
             if check_password(pwd, operador.contraseña):
+                if not operador.estado:
+                    messages.error(request, "Su cuenta ha sido bloqueada, hable con un administrador para resolver la situación.")
+                    return redirect("inicio_sesion")
                 request.session["operador_id"] = operador.id
                 request.session["operador_nombre"] = operador.nombre
-                return redirect("operador_panel")  # <- Redirección a interfaz operador
+                return redirect("operador_panel")
         except Operador.DoesNotExist:
             pass
 
@@ -61,12 +64,39 @@ def admin_panel(request):
     clientes_info = Cliente.objects.order_by('nombre')
     operadores_info = Operador.objects.order_by('nombre')
     ubicaciones_info = UbicacionCl.objects.order_by('calle')
-    return render(request, "admin_panel/admin_panel.html",{
+
+    ahora = datetime.now()
+    mes_actual = ahora.month
+    anio_actual = ahora.year
+
+    registros_mes = Residuos.objects.filter(
+        fechaRegistro__year=anio_actual,
+        fechaRegistro__month=mes_actual
+    )
+
+    campos_residuos = ['plastico', 'papel', 'carton', 'film', 'latas', 'palets', 'chatarra', 'vidrio', 'tetrapack']
+    total_mes_kg = 0
+    desecho_mas_cantidad = None
+    max_valor = 0
+
+    for campo in campos_residuos:
+        suma = registros_mes.aggregate(total=Sum(campo))['total'] or 0
+        total_mes_kg += suma
+        if suma > max_valor:
+            max_valor = suma
+            desecho_mas_cantidad = campo.capitalize()
+
+    cantidad_registros_mes = registros_mes.count()
+
+    return render(request, "admin_panel/admin_panel.html", {
         "active": "panel",
         'registros_info': registros_info,
         'clientes_info': clientes_info,
         'operadores_info': operadores_info,
         'ubicaciones_info': ubicaciones_info,
+        'total_mes_kg': total_mes_kg,
+        'cantidad_registros_mes': cantidad_registros_mes,
+        'desecho_mas_cantidad': desecho_mas_cantidad,
     })
 
 def logout_admin(request):
@@ -84,6 +114,7 @@ def generar_certificado(request):
 def procesarYResponderCertificado(doc, nombre_docx, nombre_pdf, request):
     import os
     import time
+    import pythoncom
     from django.http import FileResponse
     from django.utils import timezone
 
@@ -95,7 +126,9 @@ def procesarYResponderCertificado(doc, nombre_docx, nombre_pdf, request):
     doc.save(ruta_docx)
 
     try:
+        pythoncom.CoInitialize()
         convert(ruta_docx, ruta_pdf)
+        pythoncom.CoUninitialize()
     except Exception as e:
         messages.error(request, f"Error al convertir a PDF: {e}")
         return redirect('generar_certificado')

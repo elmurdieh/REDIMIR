@@ -2,12 +2,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from admin_panel.utils import admin_required
-from django.http import FileResponse
+from django.http import FileResponse, JsonResponse
 from .models import *
 from clientes_crud.models import *
 from operadores_crud.models import *
 from .forms import *
-
+from django.shortcuts import get_object_or_404
 
 
 @admin_required
@@ -36,3 +36,17 @@ def registros_crud(request):
         'operadores_info': operadores_info,
         'ubicaciones_info': ubicaciones_info,
         })
+
+@admin_required
+def eliminar_registro(request, id):
+    registro = get_object_or_404(Residuos, id=id)
+    if request.method == "POST":
+        registro.delete()
+        messages.success(request, "Registro eliminado correctamente.")
+    return redirect('registros_crud')
+
+@admin_required
+def obtener_ubicaciones(request):
+    cliente_id = request.GET.get("cliente_id")
+    ubicaciones = UbicacionCl.objects.filter(idCliente_id=cliente_id).values("id", "calle", "numero")
+    return JsonResponse(list(ubicaciones), safe=False)

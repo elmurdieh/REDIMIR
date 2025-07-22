@@ -66,6 +66,13 @@
           </select>
         </div>
       </div>
+      {% if messages %}
+              {% for msg in messages %}
+              <div class="alert alert-{{ msg.tags }} text-center" role="alert">
+                {{ msg }}
+            </div>
+            {% endfor %}
+            {% endif %}
       <div class="text-end mt-4">
         <button type="submit" class="btn btn-success" id="btn-generar" disabled>Generar Certificado</button>
       </div>
