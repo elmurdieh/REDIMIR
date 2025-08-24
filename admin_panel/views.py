@@ -110,7 +110,6 @@ def generar_certificado(request):
         'clientes_info': clientes_info,
     })
 
-
 def procesarYResponderCertificado(doc, nombre_docx, nombre_pdf, request):
     import os
     import time

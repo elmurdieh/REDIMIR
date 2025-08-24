@@ -39,3 +39,7 @@ def operadores_crud(request):
                    'operador_top_registros': operador_top,
                    }
                    )
+
+@admin_required
+def eliminar_operador(request):
+    return redirect('operadores_crud')
