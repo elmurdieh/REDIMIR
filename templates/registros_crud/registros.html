@@ -36,7 +36,9 @@
                 <label class="form-label">Cliente</label>
                 <select name="idCliente" id="" class="form-select">
                     {% for cliente in clientes_info %}
+                    {% if cliente.estado %}
                     <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+                    {% endif %}
                     {% endfor %}
                 </select>
               </div>

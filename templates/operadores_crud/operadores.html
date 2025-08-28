@@ -6,6 +6,8 @@
 {# ➊ CSS extra específico de este panel #}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/operadores.css' %}">
+<script src="{% static 'js/operadores.js' %}"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 {% endblock %}
 
 {% block main %}
@@ -85,23 +87,26 @@
             <th>Email</th>
             <th>Estado</th>
             <th>Eliminar</th>
-            <th>Ver Registros</th>
+            <th>Ver Perfil</th>
           </tr>
         </thead>
         <tbody>
             {% for op in operadores_info %}
-            <tr>
+            <tr id="fila-{{ op.id }}">
                 <td>{{ op.nombre }}</td>
                 <td>{{ op.rut }}</td>
                 <td>{{ op.email }}</td>
-                <td>{% if op.estado %}<button type="button" class="btn btn-success" disabled>Activo</button>{% else %}<button type="button" class="btn btn-warning" disabled>Inactivo</button>{% endif %}</td>
+                <td><button 
+                  id="btn-estado-{{ op.id }}" 
+                  class="btn {% if op.estado %}btn-success{% else %}btn-danger{% endif %}" 
+                  onclick="cambiarEstado('{{ op.id }}')">
+                  {% if op.estado %}Activo{% else %}Bloqueado{% endif %}
+                </button></td>
       <td>
-        <!-- botón/ícono eliminar (placeholder) -->
-        <button class="btn btn-sm btn-danger">X</button>
+        <a  href="{% url 'operador_eliminar' op.id %}" class="btn btn-danger" onclick="return confirm('¿Seguro que quieres eliminar a {op.nombre}?');"><i class="bi bi-trash" style="font-size: 1.1rem;"></i></a>
       </td>
       <td>
-        <!-- botón/ícono ver registros (placeholder) -->
-        <button class="btn btn-sm btn-secondary">Ver</button>
+        <a href="{% url 'operador_perfil' op.id %}" class="btn btn-dark">Ver</a>
       </td>
     </tr>
   {% empty %}

@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Count
 from admin_panel.utils import admin_required
@@ -41,5 +42,31 @@ def operadores_crud(request):
                    )
 
 @admin_required
-def eliminar_operador(request):
+def eliminar_operador(request, operador_id):
+    operador = get_object_or_404(Operador, id=operador_id)
+    operador.delete()
     return redirect('operadores_crud')
+
+@admin_required
+def cambiar_estado(request, operador_id):
+    if request.method == 'POST':
+        operador = get_object_or_404(Operador, id=operador_id)
+        operador.estado = not operador.estado
+        operador.save()
+        return JsonResponse({
+            'success': True,
+            'id': operador.id,
+            'nombre': operador.nombre,
+            'rut': operador.rut,
+            'email': operador.email,
+            'estado': operador.estado
+        })
+    return JsonResponse({'success': False}, status=405)
+
+@admin_required
+def operador_perfil(request, operador_id):
+    operador = get_object_or_404(Operador, id=operador_id)
+    return render(request, "operadores_crud/operador.html",
+                  {"active": "operadores",
+                   'operador_info':operador,
+                   })
