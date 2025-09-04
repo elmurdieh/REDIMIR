@@ -32,7 +32,9 @@ SECRET_KEY = 'django-insecure-v^idyw5vmo-y_(=w!5cczi#$j7)@0ff@47xc@-iejj$kbl3d=0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+LOCAL_IP = os.getenv('LOCAL_IP')
+
+ALLOWED_HOSTS = [LOCAL_IP]
 
 
 # Application definition
@@ -48,6 +50,7 @@ INSTALLED_APPS = [
     'clientes_crud',
     'operadores_crud',
     'registros_crud',
+    'logs',
 ]
 
 MIDDLEWARE = [
@@ -113,7 +116,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 

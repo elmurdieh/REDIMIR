@@ -25,16 +25,6 @@ def operador_panel(request):
     clientes_info = Cliente.objects.order_by('nombre')
     operadores_info = Operador.objects.order_by('nombre')
     ubicaciones_info = UbicacionCl.objects.order_by('calle')
-    if request.method == 'POST':
-        if 'submit_registro' in request.POST:
-            form_registro = registrosForm(request.POST, request.FILES)
-            if form_registro.is_valid():
-                form_registro.save()
-                messages.success(request, 'Registro enlistado correctamente.')
-                return redirect('operador_panel')
-            else:
-                messages.error(request, "Error al enlistar Registro.")
-                print(form_registro.errors)
 
     return render(request, "operador_panel/operador_panel.html", {
         'operador_id': operador_id,
@@ -45,24 +35,6 @@ def operador_panel(request):
         'ubicaciones_info': ubicaciones_info,
     })
 
-def logout_operador(request):
+def operador_logout(request):
     request.session.flush()
     return redirect("inicio_sesion")
-
-@operador_required
-def operador_registros(request):
-    operador_id = request.session.get("operador_id")
-    operador_nombre = request.session.get("operador_nombre")
-
-    registros_info = Residuos.objects.all().select_related('idOperador', 'idCliente', 'idUbicacion').order_by('-id')
-    clientes_info = Cliente.objects.order_by('nombre')
-    operadores_info = Operador.objects.order_by('nombre')
-    ubicaciones_info = UbicacionCl.objects.order_by('calle')
-    return render(request, "operador_panel/operador_registros.html",{
-        'operador_id': operador_id,
-        'operador_nombre': operador_nombre,
-        'registros_info': registros_info,
-        'clientes_info': clientes_info,
-        'operadores_info': operadores_info,
-        'ubicaciones_info': ubicaciones_info,
-    })
