@@ -1,0 +1,16 @@
+{% extends "admin_panel/navbar_admin.html" %}
+{% load static %}
+
+{% block title %}Panel Administrador REDIMIR{% endblock %}
+
+{% block main %}
+  <h1>HOLA {{ operador_info.nombre }}</h1>
+  <div class="col-md-6">
+    <div class="card text-white bg-primary">
+      <div class="card-body">
+        <h5 class="card-title">Cantidad total de Operadores</h5>
+        <p class="card-text"></p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

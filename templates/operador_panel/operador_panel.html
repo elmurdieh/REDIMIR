@@ -1,0 +1,156 @@
+{% extends 'operador_panel/base_operador.html' %}
+{% load static %}
+
+{% block content %}
+<script>
+    window.ubicacionesData = {{ ubicaciones_info|safe }};
+</script>
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Formulario de registro de desechos</h5>
+      <form method="POST" enctype="multipart/form-data" action="{% url 'generar_registro' %}">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label form-label-custom">Operador</label>
+            <input type="text" class="form-control form-control-custom" value="{{ operador_nombre }}" disabled>
+            <input type="hidden" name="idOperador" value="{{ operador_id }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label form-label-custom">Cliente</label>
+            <div>
+              <button type="button" class="btn btn-enviar" data-bs-toggle="modal" data-bs-target="#clienteModal">
+                Seleccionar Cliente
+              </button>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label form-label-custom">Ubicación</label>
+            <select name="idUbicacion" class="form-select form-control-custom">
+              <option >Selecciona un Cliente Primero</option>
+            </select>
+          </div>
+          
+          <div class="col-md-6">
+            <label class="form-label form-label-custom">Fecha del Registro</label>
+            <input type="date" class="form-control form-control-custom" name="fechaRegistro" required />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label form-label-custom fw-bold">Residuos Kg</label>
+          </div>
+          
+          <div class="col-6">
+            <label>Plastico</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="plastico" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Cartón</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="carton" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Papel</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="papel" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>FIlms</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="film" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Palets</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="palets" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Palets (Cantidad)</label>
+            <input type="number" class="form-control form-control-custom" name="palets_cantidad" placeholder="0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Latas</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="latas" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Chatarra</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="chatarra" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Vidrio</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="vidrio" placeholder="00.0" />
+          </div>
+          
+          <div class="col-6">
+            <label>Tetrapack</label>
+            <input type="number" step="0.1" class="form-control form-control-custom" name="tetrapack" placeholder="00.0" />
+          </div>
+          {% if messages %}
+          {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags }} text-center" role="alert">
+            {{ msg }}
+          </div>
+          {% endfor %}
+          {% endif %}
+          <div class="col-12 text-end">
+            <button type="button" class="btn btn-enviar" data-bs-toggle="modal" data-bs-target="#registroModal">Registrar</button>
+          </div>
+        </div>
+        <!-- Input para las Fotos -->
+        <input type="file" id="modalFileInput" name="fotos" accept="image/*" capture="environment" multiple class="d-none"/>
+        <!-- Modal de las Fotos -->
+        <div class="modal fade" id="registroModal" tabindex="-1" aria-labelledby="registroModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-custom">
+              <div id="modalBody" class="modal-body modal-body-custom"></div>
+              <div id="modalFooter" class="modal-footer modal-footer-custom"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal de las Fotos -->
+        <div class="modal fade" id="registroModal" tabindex="-1" aria-labelledby="registroModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-custom">
+              <div id="modalBody" class="modal-body modal-body-custom"></div>
+              <div id="modalFooter" class="modal-footer modal-footer-custom"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Modal de seleccion de Clientes -->
+        <div class="modal fade" id="clienteModal" tabindex="-1" aria-labelledby="clienteModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-custom">
+              <div class="modal-header modal-header-custom">
+                <h5 class="modal-title modal-title-custom">Seleccionar Cliente</h5>
+                <button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body modal-body-clientes">
+                <div class="row g-3">
+                  {% for cliente in clientes_info %}
+                  <div class="col-6">
+                    <div class="cliente-card" onclick="seleccionarCliente({{ cliente.id }}, '{{ cliente.nombre|escapejs }}')"> <!-- Ignorar Error de escritura -->
+                      <div class="cliente-imagen-container">
+                        <img src="{{ cliente.imagen.url }}" alt="{{ cliente.nombre }}" class="cliente-imagen">
+                      </div>
+                      <div class="cliente-nombre">{{ cliente.nombre }}</div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

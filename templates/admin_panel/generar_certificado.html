@@ -1,0 +1,109 @@
+{% extends "admin_panel/navbar_admin.html" %}
+{% load static %}
+
+{% block title %}Panel AdministradorREDIMIR{% endblock %}
+
+{# ➊ CSS extra específico de este panel #}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/generar_certificado.css' %}">
+{% endblock %}
+
+{% block main %}
+<h1 class="mb-4 text-dark">Generar Certificado CTTR</h1>
+
+<!-- ===== Carrusel de clientes ===== -->
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Selecciona un Cliente</h5>
+    <div class="d-flex overflow-auto gap-3 pb-2">
+      {% for cliente in clientes_info %}
+      <div class="card text-center flex-shrink-0" style="min-width: 200px;" data-cliente-id="{{ cliente.id }}">
+        <div class="card-body">
+          <h6 class="card-title">{{ cliente.nombre }}</h6>
+          <img src="{{ cliente.imagen.url }}" alt="Logo Cliente" class="img-fluid my-2" style="height: 60px;">
+          <button type="button" class="btn btn-info btn-seleccionar" data-id="{{ cliente.id }}">Seleccionar</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ===== Formulario de fecha ===== -->
+<form method="post" action="{% url 'generarCertificado' %}">
+  {% csrf_token %}
+  <input type="hidden" name="cliente_id" id="cliente_id" required>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Selecciona Mes, Año y Certificado</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="anio" class="form-label">Año</label>
+          <input type="number" class="form-control" name="anio" id="anio" placeholder="Ej: 2025" required>
+        </div>
+        <div class="col-md-4">
+          <label for="mes" class="form-label">Mes</label>
+          <select name="mes" id="mes" class="form-select" required>
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="tipo_certificado" class="form-label">Tipo de Certificado</label>
+          <select name="tipo_certificado" id="tipo_certificado" class="form-select" required>
+            <option value="1">Transporte y Trazabilidad de Residuos</option>
+            <option value="2">Eco Equivalencia</option>
+          </select>
+        </div>
+      </div>
+      {% if messages %}
+              {% for msg in messages %}
+              <div class="alert alert-{{ msg.tags }} text-center" role="alert">
+                {{ msg }}
+            </div>
+            {% endfor %}
+            {% endif %}
+      <div class="text-end mt-4">
+        <button type="submit" class="btn btn-success" id="btn-generar" disabled>Generar Certificado</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- JS para controlar la selección -->
+<script>
+  const botones = document.querySelectorAll(".btn-seleccionar");
+  const hiddenInput = document.getElementById("cliente_id");
+  const botonGenerar = document.getElementById("btn-generar");
+
+  botones.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-id");
+      hiddenInput.value = id;
+      botonGenerar.disabled = false;
+
+      botones.forEach(b => {
+        b.disabled = false;
+        b.classList.remove("btn-success");
+        b.classList.add("btn-info");
+        b.textContent = "Seleccionar";
+      });
+
+      btn.disabled = true;
+      btn.classList.remove("btn-info");
+      btn.classList.add("btn-success");
+      btn.textContent = "Seleccionado";
+    });
+  });
+</script>
+{% endblock %}

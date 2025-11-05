@@ -1,0 +1,170 @@
+/* ===== variables globales ===== */
+:root{
+  --color-verde: #95bf3c;
+  --color-blanco: #ffffff;
+  --color-negro: #181818;
+}
+
+/* layout principal (hereda #main-content de base_admin) */
+body{background:var(--color-blanco);font-family:Arial, sans-serif;}
+
+/* ---------- cards resumen ---------- */
+.card{border:none;box-shadow:0 4px 8px rgb(0 0 0 / .1);margin-bottom:20px;}
+.card-title{font-weight:bold;color:var(--color-negro);}
+.card-text{font-size:2rem;text-align:center;color:var(--color-negro);}
+
+.card.bg-primary{background:var(--color-verde)!important;color:var(--color-negro)!important;}
+.card.bg-primary .card-title,
+.card.bg-primary .card-text{color:var(--color-negro)!important;}
+
+.card.bg-success{background:var(--color-negro)!important;color:var(--color-blanco)!important;}
+.card.bg-success .card-title,
+.card.bg-success .card-text{color:var(--color-blanco)!important;}
+
+.card.bg-warning{
+  background:var(--color-blanco)!important;
+  color:var(--color-negro)!important;
+  border:1px solid var(--color-verde);
+}
+.card.bg-warning .card-title,
+.card.bg-warning .card-text{color:var(--color-negro)!important;}
+
+/* ---------- botones de acción ---------- */
+.btn-group-row .btn{margin-right:10px;border-radius:5px;}
+.btn-info{background:var(--color-verde);border-color:var(--color-verde);color:var(--color-negro);}
+.btn-info:hover{background:#7fa42f;border-color:#7fa42f;}
+.btn-secondary{background:var(--color-negro);border-color:var(--color-negro);color:var(--color-blanco);}
+.btn-secondary:hover{background:#333;border-color:#333;}
+
+/* ---------- tabla ---------- */
+.table{border-collapse:separate;border-spacing:0 10px;}
+.table thead{background:var(--color-negro);color:var(--color-blanco);}
+.table tbody tr{background:var(--color-blanco);transition:.2s;}
+.table tbody tr:hover{background:#f0f0f0;}
+.table th,.table td{padding:12px 15px;border:none;}
+
+.cliente-card-grafico {
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.cliente-card-grafico:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.cliente-imagen-container {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.cliente-imagen {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.cliente-nombre {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.config-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+
+.config-section-title {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.config-section-content {
+  padding-top: 5px;
+}
+.cliente-card-grafico {
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.cliente-card-grafico:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.cliente-imagen-container {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.cliente-imagen {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.cliente-nombre {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.chart-container {
+  min-height: 450px !important;
+  max-height: 450px !important;
+}
+
+.badge {
+  font-size: 14px;
+  padding: 0 5px;
+}
+
+.modal-fullscreen .modal-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-container-ampliado {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+.btn-group .btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .btn-group .btn {
+    font-size: 12px;
+    padding: 0.375rem 0.5rem;
+  }
+  
+  .btn-group .btn i {
+    font-size: 14px;
+  }
+}

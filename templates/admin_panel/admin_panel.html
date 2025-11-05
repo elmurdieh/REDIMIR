@@ -1,0 +1,393 @@
+{% extends "admin_panel/navbar_admin.html" %}
+{% load static %}
+
+{% block title %}Panel AdministradorREDIMIR{% endblock %}
+
+{# ➊ CSS extra específico de este panel #}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+<script src="{% static 'js/admin_panel.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block main %}
+<h1 class="mb-4 text-dark">Panel Administrador</h1>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card text-white bg-primary">
+      <div class="card-body">
+        <h5 class="card-title">Cantidad total de este Mes</h5>
+        <p class="card-text">{{ total_mes_kg|floatformat:1 }} Kg</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-white bg-success">
+      <div class="card-body">
+        <h5 class="card-title">Registros de este Mes</h5>
+        <p class="card-text">{{ cantidad_registros_mes }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card text-white bg-warning">
+      <div class="card-body">
+        <h5 class="card-title">Desecho con mas cantidad este Mes</h5>
+        <p class="card-text">{{ desecho_mas_cantidad }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Gráfico de Barras con Modal de Configuración -->
+<div class="card mt-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="card-title mb-0">Totales por Tipo de Residuo</h5>
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-success" onclick="descargarGrafico()" title="Descargar gráfico como imagen">
+          <i class="bi bi-download"></i> Descargar
+        </button>
+        <button type="button" class="btn btn-info" onclick="ampliarGrafico()" title="Ver en pantalla completa">
+          <i class="bi bi-arrows-fullscreen"></i> Ampliar
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalConfigGrafico">
+          <i class="bi bi-gear-fill"></i> Configurar
+        </button>
+      </div>
+    </div>
+    
+    <!-- Contenedor BARRAScon altura fija -->
+    <div class="chart-container" style="position: relative; height: 450px;">
+      <canvas id="graficoBarras"></canvas>
+    </div>
+  </div>
+</div>
+<div class="card mt-4">
+  <div class="card-body">
+    <h5 class="card-title">Generar Certificados</h5>
+    <div class="d-flex btn-group-row">
+      <a href="{% url 'generar_certificado' %}" class="btn btn-info">Generar Certificado</a>
+    </div>
+  </div>
+</div>
+
+<div class="card mt-4">
+  <div class="card-body">
+    <h5 class="card-title">Registros Recientes</h5>
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th rowspan="2">Operador</th>
+            <th rowspan="2">Cliente</th>
+            <th rowspan="2">Fecha del Registro</th>
+            <th rowspan="2">Ubicacion</th>
+            <th colspan="11" class="text-center">Residuos</th>
+          </tr>
+          <tr>
+            <th>Plastico Kg</th>
+            <th>Carton Kg</th>
+            <th>Papel Kg</th>
+            <th>Films Kg</th>
+            <th>Latas Kg</th>
+            <th>Palets Kg</th>
+            <th>Palets Cantidad</th>
+            <th>Chatarra Kg</th>
+            <th>Vidrio Kg</th>
+            <th>Tetrapack Kg</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for re in registros_info %}
+            <tr>
+                <td>{{ re.idOperador.nombre }}</td>
+                <td>{{ re.idCliente.nombre }}</td>
+                <td>{{ re.fechaRegistro }}</td>
+                <td>{{ re.idUbicacion.calle }} {{ re.idUbicacion.numero }}</td>
+                <td>
+                    {% if re.plastico is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.plastico }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.carton is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.carton }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.papel is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.papel }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.film is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.film }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.latas is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.latas }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.palets is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.palets }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.palets_cantidad is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.palets_cantidad }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.chatarra is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.chatarra }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.vidrio is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.vidrio }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if re.tetrapack is None %}
+                        <button class="btn btn-danger btn-sm null-indicator-btn" disabled>X</button>
+                    {% else %}
+                        {{ re.tetrapack }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="14" class="text-center">Sin Registros aún.</td></tr>
+            {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Ampliación BARRAS-->
+<div class="modal fade" id="modalAmpliarGrafico" tabindex="-1" aria-labelledby="modalAmpliarGraficoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="modalAmpliarGraficoLabel">
+          <i class="bi bi-bar-chart-fill"></i> Vista Ampliada del Gráfico
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body bg-light p-4">
+        <div class="chart-container-ampliado" style="position: relative; width: 100%;"></div>
+        <canvas id="graficoBarrasAmpliado"></canvas>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Configuración BARRAS-->
+<div class="modal fade" id="modalConfigGrafico" tabindex="-1" aria-labelledby="modalConfigGraficoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConfigGraficoLabel">
+          <i class="bi bi-sliders"></i> Configuración del Gráfico
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="config-section mb-4">
+          <h6 class="config-section-title">
+            <i class="bi bi-calendar3"></i> Tiempo
+          </h6>
+          <div class="config-section-content">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Año</label>
+                <input type="number" id="filtroAnioGrafico" class="form-control" placeholder="Año actual" min="2020" max="2100" maxlength="4">
+                <small class="text-muted">Dejar vacío para año actual</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Mes</label>
+                <select id="filtroMesGrafico" class="form-select">
+                  <option value="">Todo el año</option>
+                  <option value="1">Enero</option>
+                  <option value="2">Febrero</option>
+                  <option value="3">Marzo</option>
+                  <option value="4">Abril</option>
+                  <option value="5">Mayo</option>
+                  <option value="6">Junio</option>
+                  <option value="7">Julio</option>
+                  <option value="8">Agosto</option>
+                  <option value="9">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-section mb-4">
+          <h6 class="config-section-title">
+            <i class="bi bi-building"></i> Cliente
+          </h6>
+          <div class="config-section-content">
+            <div id="contenedorClienteGrafico">
+              <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#modalClienteGrafico">
+                <i class="bi bi-building"></i> Seleccionar Cliente Específico
+              </button>
+              <small class="text-muted d-block mt-2">Por defecto muestra todos los clientes</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-section">
+          <h6 class="config-section-title">
+            <i class="bi bi-recycle"></i> Tipos de Residuo
+          </h6>
+          <div class="config-section-content">
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="checkTodos" onchange="toggleTodosCheckbox()" checked>
+              <label class="form-check-label fw-bold" for="checkTodos">
+                <i class="bi bi-check-all"></i> Seleccionar Todos
+              </label>
+            </div>
+            <div class="row g-2">
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="plastico" id="checkPlastico" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkPlastico">
+                    <span class="badge" style="background-color: rgba(54, 162, 235, 0.7);">●</span> Plástico
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="carton" id="checkCarton" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkCarton">
+                    <span class="badge" style="background-color: rgba(255, 206, 86, 0.7);">●</span> Cartón
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="papel" id="checkPapel" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkPapel">
+                    <span class="badge" style="background-color: rgba(201, 203, 207, 0.7);">●</span> Papel
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="film" id="checkFilm" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkFilm">
+                    <span class="badge" style="background-color: rgba(153, 102, 255, 0.7);">●</span> Films
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="latas" id="checkLatas" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkLatas">
+                    <span class="badge" style="background-color: rgba(255, 159, 64, 0.7);">●</span> Latas
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="palets" id="checkPalets" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkPalets">
+                    <span class="badge" style="background-color: rgba(75, 192, 192, 0.7);">●</span> Palets
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="chatarra" id="checkChatarra" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkChatarra">
+                    <span class="badge" style="background-color: rgba(128, 128, 128, 0.7);">●</span> Chatarra
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="vidrio" id="checkVidrio" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkVidrio">
+                    <span class="badge" style="background-color: rgba(0, 255, 127, 0.7);">●</span> Vidrio
+                  </label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  <input class="form-check-input checkbox-residuo" type="checkbox" value="tetrapack" id="checkTetrapack" onchange="actualizarCheckTodos()" checked>
+                  <label class="form-check-label" for="checkTetrapack">
+                    <span class="badge" style="background-color: rgba(255, 99, 132, 0.7);">●</span> Tetrapack
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="limpiarFiltrosGrafico()">
+          <i class="bi bi-x-circle"></i> Limpiar Filtros
+        </button>
+        <button type="button" class="btn btn-primary" onclick="aplicarConfiguracion()">
+          <i class="bi bi-check-circle"></i> Aplicar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalClienteGrafico" tabindex="-1" aria-labelledby="modalClienteGraficoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-building"></i> Seleccionar Cliente
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          {% for cliente in clientes_info %}
+          <div class="col-6 col-md-4">
+            <div class="cliente-card-grafico" onclick="seleccionarClienteGrafico({{ cliente.id }}, '{{ cliente.nombre|escapejs }}')"> <!-- Ignorar Error de Escritura-->
+              <div class="cliente-imagen-container">
+                <img src="{{ cliente.imagen.url }}" alt="{{ cliente.nombre }}" class="cliente-imagen">
+              </div>
+              <div class="cliente-nombre">{{ cliente.nombre }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

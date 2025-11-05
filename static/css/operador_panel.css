@@ -1,0 +1,317 @@
+/* --- Estilos para la barra de navegación --- */
+.navbar-custom {
+    background-color: rgb(24, 24, 24) !important;
+}
+
+.navbar-brand img {
+    max-height: 50px;
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    .navbar-brand img {
+    max-height: 40px;
+    }
+}
+.navbar-toggler {
+    border-color: rgba(255, 255, 255);
+}
+.navbar-toggler:hover {
+    border-color: rgb(149, 191, 60);
+}
+.navbar-toggler-icon {
+    filter: invert(1);
+}
+.nav-link{
+    color: rgb(255, 255, 255);
+}
+.nav-link:hover{
+    color: rgb(149, 191, 60);
+}
+
+
+/* estilos del formulario */
+.form-label-custom {
+    color: rgb(24, 24, 24) !important;
+    font-weight: 500 !important;
+    margin-bottom: 8px !important;
+    font-size: 0.95rem !important;
+}
+
+.form-control-custom {
+    border: 2px solid rgba(24, 24, 24, 0.2) !important;
+    border-radius: 8px !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    color: rgb(24, 24, 24) !important;
+    padding: 10px 12px !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.form-control-custom:focus {
+    border-color: rgb(149, 191, 60) !important;
+    box-shadow: 0 0 0 0.2rem rgba(149, 191, 60, 0.25) !important;
+    background-color: rgba(255, 255, 255, 1) !important;
+    outline: none !important;
+}
+
+.form-control-custom::placeholder {
+    color: rgba(24, 24, 24, 0.5) !important;
+}
+
+/* Estilos para select */
+.form-select.form-control-custom {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+    cursor: pointer !important;
+}
+
+/* Botón personalizado */
+.btn-enviar {
+    background: linear-gradient(135deg, rgb(149, 191, 60) 0%, rgb(169, 211, 80) 100%) !important;
+    color: rgba(255, 255, 255) !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-enviar:hover {
+    background: linear-gradient(135deg, rgb(129, 171, 40) 0%, rgb(149, 191, 60) 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(149, 191, 60, 0.3) !important;
+    color: rgba(255, 255, 255) !important;
+}
+
+.btn-enviar:active {
+    transform: translateY(0) !important;
+}
+
+.btn-enviar:focus {
+    box-shadow: 0 0 0 0.2rem rgba(149, 191, 60, 0.5) !important;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .form-control-custom {
+        font-size: 16px !important; /* Evita zoom en iOS */
+    }
+}
+
+/* MODAL */
+/* Estilos para el modal personalizado */
+.modal-custom {
+    background-color: rgb(24, 24, 24) !important;
+    border: 2px solid rgb(149, 191, 60) !important;
+    border-radius: 10px !important;
+}
+
+.modal-header-custom {
+    background-color: rgb(24, 24, 24) !important;
+    border-bottom: 1px solid rgb(149, 191, 60) !important;
+    padding: 20px !important;
+}
+
+.modal-title-custom {
+    color: rgb(149, 191, 60) !important;
+    font-weight: 600 !important;
+    font-size: 1.2rem !important;
+}
+
+.modal-body-custom {
+    background-color: rgb(24, 24, 24) !important;
+    padding: 30px !important;
+    text-align: center !important;
+}
+
+.modal-text-custom {
+    color: rgb(149, 191, 60) !important;
+    font-size: 1.1rem !important;
+    margin: 0 !important;
+    font-weight: 500 !important;
+}
+
+.modal-footer-custom {
+    background-color: rgb(24, 24, 24) !important;
+    border-top: 1px solid rgb(149, 191, 60) !important;
+    padding: 20px !important;
+    justify-content: center !important;
+}
+
+.btn-modal-custom {
+    background-color: rgb(149, 191, 60) !important;
+    color: rgb(24, 24, 24) !important;
+    border: none !important;
+    padding: 10px 25px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-modal-custom:hover {
+    background-color: rgb(169, 211, 80) !important;
+    color: rgb(24, 24, 24) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Botón de cerrar personalizado */
+.btn-close-custom {
+    background: none !important;
+    border: none !important;
+    font-size: 1.2rem !important;
+    color: rgb(149, 191, 60) !important;
+    opacity: 1 !important;
+}
+
+.btn-close-custom:hover {
+    color: rgb(169, 211, 80) !important;
+    transform: scale(1.1) !important;
+}
+
+.btn-close-custom::before {
+    content: "×" !important;
+    color: rgb(149, 191, 60) !important;
+    font-size: 1.5rem !important;
+}
+
+/* Backdrop del modal más oscuro */
+.modal-backdrop {
+    background-color: rgb(0, 0, 0) !important;
+    opacity: 0.8 !important;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .modal-dialog {
+        margin: 1rem !important;
+    }
+    
+    .modal-custom {
+        margin: 0 !important;
+    }
+    
+    .modal-text-custom {
+        font-size: 1rem !important;
+    }
+}
+
+.modal-announcement {
+    color: rgb(149, 191, 60) !important;
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    margin-bottom: 30px !important;
+    line-height: 1.5 !important;
+}
+
+.camera-icon-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.camera-icon {
+    font-size: 4rem !important;
+    color: rgb(149, 191, 60) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    padding: 20px !important;
+    border: 3px dashed rgb(149, 191, 60) !important;
+    border-radius: 50% !important;
+}
+
+.camera-icon:hover {
+    color: rgb(169, 211, 80) !important;
+    border-color: rgb(169, 211, 80) !important;
+    transform: scale(1.1) !important;
+}
+/* Modal de clientes */
+.modal-body-clientes {
+    background-color: rgb(24, 24, 24) !important;
+    padding: 20px !important;
+}
+
+.cliente-card {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 2px solid rgba(149, 191, 60, 0.3) !important;
+    border-radius: 12px !important;
+    padding: 15px !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    height: 180px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.cliente-card:hover {
+    border-color: rgb(149, 191, 60) !important;
+    background-color: rgba(149, 191, 60, 0.1) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 5px 15px rgba(149, 191, 60, 0.2) !important;
+}
+
+.cliente-imagen-container {
+    width: 80px !important;
+    height: 80px !important;
+    margin-bottom: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+}
+
+.cliente-imagen {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 6px !important;
+}
+
+.cliente-nombre {
+    color: rgb(149, 191, 60) !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    line-height: 1.2 !important;
+    margin-top: auto !important;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .modal-lg {
+        max-width: 95% !important;
+    }
+    
+    .cliente-card {
+        height: 160px !important;
+        padding: 12px !important;
+    }
+    
+    .cliente-imagen-container {
+        width: 70px !important;
+        height: 70px !important;
+    }
+    
+    .cliente-nombre {
+        font-size: 0.8rem !important;
+    }
+}
+
+.preview-container {
+    margin-top: 10px !important;
+}
+
+.preview-foto {
+    width: 90px !important;
+    height: 90px !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+    border: 2px solid rgb(149, 191, 60) !important;
+}
