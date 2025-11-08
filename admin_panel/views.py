@@ -52,8 +52,6 @@ def index(request):
         except Operador.DoesNotExist:
             pass
 
-        messages.error(request, "RUT o contraseña incorrecta")
-
     return render(request, "admin_panel/inicio_sesion.html")
 
 @admin_required

@@ -1,170 +1,161 @@
-/* ===== variables globales ===== */
-:root{
-  --color-verde: #95bf3c;
-  --color-blanco: #ffffff;
-  --color-negro: #181818;
+/* ----- Zonas del Layout ----- */
+
+.panel-top {
+  /* Espacio entre la zona de cards y la zona del gráfico */
+  margin-bottom: 1rem; 
 }
 
-/* layout principal (hereda #main-content de base_admin) */
-body{background:var(--color-blanco);font-family:Arial, sans-serif;}
-
-/* ---------- cards resumen ---------- */
-.card{border:none;box-shadow:0 4px 8px rgb(0 0 0 / .1);margin-bottom:20px;}
-.card-title{font-weight:bold;color:var(--color-negro);}
-.card-text{font-size:2rem;text-align:center;color:var(--color-negro);}
-
-.card.bg-primary{background:var(--color-verde)!important;color:var(--color-negro)!important;}
-.card.bg-primary .card-title,
-.card.bg-primary .card-text{color:var(--color-negro)!important;}
-
-.card.bg-success{background:var(--color-negro)!important;color:var(--color-blanco)!important;}
-.card.bg-success .card-title,
-.card.bg-success .card-text{color:var(--color-blanco)!important;}
-
-.card.bg-warning{
-  background:var(--color-blanco)!important;
-  color:var(--color-negro)!important;
-  border:1px solid var(--color-verde);
+.panel-middle {
+  /* Espacio entre la zona de gráfico y la zona de tabla/link */
+  margin-bottom: 1rem; 
+  
+  /* Dejamos un color de fondo aquí temporalmente 
+    para que puedas ver la zona del gráfico antes de llenarla.
+  */
+  background-color: #f8f9fa; /* Un gris muy claro */
+  border-radius: 6px;
+  
+  /* Añadimos esto para centrar el texto de "Zona 2" */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.card.bg-warning .card-title,
-.card.bg-warning .card-text{color:var(--color-negro)!important;}
 
-/* ---------- botones de acción ---------- */
-.btn-group-row .btn{margin-right:10px;border-radius:5px;}
-.btn-info{background:var(--color-verde);border-color:var(--color-verde);color:var(--color-negro);}
-.btn-info:hover{background:#7fa42f;border-color:#7fa42f;}
-.btn-secondary{background:var(--color-negro);border-color:var(--color-negro);color:var(--color-blanco);}
-.btn-secondary:hover{background:#333;border-color:#333;}
+.panel-bottom {
+  /* Cambiamos los 250px por 15rem.
+    (Asumiendo 1rem = 16px). Ajusta este valor si te parece
+    demasiado alto o bajo.
+  */
+  height: 15rem; 
+}
 
-/* ---------- tabla ---------- */
+/* Dejamos estos colores/estilos para que sigas viendo la 
+  distribución de la zona 3 (tabla y link)
+*/
+.zona-tabla {
+  background-color: #e9ecef; /* Gris */
+  border-radius: 6px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zona-link {
+  background-color: #dee2e6; /* Gris más oscuro */
+  border-radius: 6px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* =========================================================
+   ESTILOS BASE DEL LAYOUT Y ADAPTACIÓN DEL GRÁFICO (Zona 2)
+   ========================================================= */
+
+/* --- 1. ESTILOS DE LA ZONA MEDIA (Layout y Espaciado) --- */
+
+.panel-middle {
+    /* Color de fondo del área del gráfico (puedes borrarlo una vez insertes el gráfico) */
+    background-color: #f8f9fa; 
+    border-radius: 6px;
+    
+    /* Centrado de placeholder (si aún está el texto) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- 2. ESTILOS BASE DE LA CARD (Aplica al contenedor del gráfico) --- */
+
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgb(0 0 0 / .1);
+    /* Eliminamos el margin-bottom fijo de 20px ya que el layout Flexbox 
+       usa el 'margin-bottom: 1rem' del .panel-middle. */
+}
+
+.card-title {
+    font-weight: bold;
+    color: var(--color-negro);
+}
+
+/* --- 3. ESTILOS DE LOS BOTONES DE CONTROL (Se mantienen) --- */
+
+/* Estilos para los botones de acción (Descargar, Ampliar, Configurar) */
+.btn-info {
+    background: var(--color-verde);
+    border-color: var(--color-verde);
+    color: var(--color-negro);
+}
+.btn-info:hover {
+    background: #7fa42f;
+    border-color: #7fa42f;
+}
+
+/* --- 4. CONTENEDOR DEL GRÁFICO (.chart-container) --- */
+.modal-fullscreen .modal-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container-ampliado {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+/* --- ESTILOS DE TABLA (Tus estilos antiguos, se mantienen) --- */
 .table{border-collapse:separate;border-spacing:0 10px;}
 .table thead{background:var(--color-negro);color:var(--color-blanco);}
 .table tbody tr{background:var(--color-blanco);transition:.2s;}
 .table tbody tr:hover{background:#f0f0f0;}
 .table th,.table td{padding:12px 15px;border:none;}
 
-.cliente-card-grafico {
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: white;
+/* --- ZONA INFERIOR (Debe tener esta altura fija) --- */
+.panel-bottom {
+  height: 13.5rem /* O el valor que hayas decidido usar (ej: 250px) */
+}
+/* ---------- tabla (ADAPTADO A INTERFAZ FLEXIBLE) ---------- */
+
+/* Reducimos el espaciado vertical entre filas de 10px a 5px */
+.table {
+    border-collapse: separate;
+    border-spacing: 0 5px; 
+}
+.table thead {
+    background: var(--color-negro);
+    color: var(--color-blanco);
+}
+.table tbody tr {
+    background: var(--color-blanco);
+    transition: .2s;
+}
+.table tbody tr:hover {
+    background: #f0f0f0;
 }
 
-.cliente-card-grafico:hover {
-  border-color: #0d6efd;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transform: translateY(-2px);
+/* Reducimos el padding interno de las celdas de 12px a 8px */
+.table th, 
+.table td {
+    /* ¡Reducido al mínimo! */
+    padding: 5px 10px !important; 
+    border: none;
 }
 
-.cliente-imagen-container {
-  width: 100%;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
+/* Reducimos el tamaño de la fuente del contenido de la tabla */
+.table tbody td {
+    font-size: 0.85rem; 
 }
-
-.cliente-imagen {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+.panel-bottom .card-body > .flex-grow-1 {
+    min-height: 0 !important; 
 }
-
-.cliente-nombre {
-  font-weight: 600;
-  font-size: 14px;
-  color: #333;
+.content-wrapper {
+    padding-bottom: 0 !important; /* Elimina cualquier padding inferior */
 }
-
-.config-section {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 15px;
-  background-color: #f8f9fa;
-}
-
-.config-section-title {
-  font-weight: 600;
-  color: #495057;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #dee2e6;
-}
-
-.config-section-content {
-  padding-top: 5px;
-}
-.cliente-card-grafico {
-  border: 2px solid #ddd;
-  border-radius: 10px;
-  padding: 15px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: white;
-}
-
-.cliente-card-grafico:hover {
-  border-color: #0d6efd;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transform: translateY(-2px);
-}
-
-.cliente-imagen-container {
-  width: 100%;
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.cliente-imagen {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.cliente-nombre {
-  font-weight: 600;
-  font-size: 14px;
-  color: #333;
-}
-
-.chart-container {
-  min-height: 450px !important;
-  max-height: 450px !important;
-}
-
-.badge {
-  font-size: 14px;
-  padding: 0 5px;
-}
-
-.modal-fullscreen .modal-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chart-container-ampliado {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-.btn-group .btn {
-  white-space: nowrap;
-}
-
-@media (max-width: 768px) {
-  .btn-group .btn {
-    font-size: 12px;
-    padding: 0.375rem 0.5rem;
-  }
-  
-  .btn-group .btn i {
-    font-size: 14px;
-  }
+/* Opción 3B: Asegurar que el último panel no empuje nada más */
+.panel-bottom {
+    /* Mantén la altura que habías definido en CSS, ej: 13.5rem */
+    height: 13.5rem; 
+    
+    /* ¡Aseguramos que no tenga margen inferior para que no haya espacio después! */
+    margin-bottom: 0 !important; 
 }

@@ -4,7 +4,8 @@ venv/
 
 # Configuración y secretos
 .env
-
+media/plantillas/plantillaCttr.docx
+media/plantillas/plantillaEco.docx
 # Archivos de compilación de Python
 __pycache__/
 *.pyc
