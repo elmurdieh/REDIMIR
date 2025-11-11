@@ -54,6 +54,10 @@ def index(request):
 
     return render(request, "admin_panel/inicio_sesion.html")
 
+def logout_admin(request):
+    request.session.flush()
+    return redirect("inicio_sesion")
+
 @admin_required
 def admin_panel(request):
     registros_info = Residuos.objects.all().select_related('idOperador','idCliente','idUbicacion').order_by('-id')
@@ -95,16 +99,61 @@ def admin_panel(request):
         'desecho_mas_cantidad': desecho_mas_cantidad,
     })
 
-def logout_admin(request):
-    request.session.flush()
-    return redirect("inicio_sesion")
-
 @admin_required
 def generar_certificado(request):
     clientes_info = Cliente.objects.order_by('nombre')
     return render(request, "admin_panel/generar_certificado.html",{
         'clientes_info': clientes_info,
     })
+
+@admin_required
+def obtener_ultimo_registro_ajax(request):
+    try:
+        ultimo_registro = Residuos.objects.order_by('-id').select_related(
+            'idOperador', 'idCliente', 'idUbicacion'
+        ).prefetch_related('fotos').first()  # ✅ Agregar prefetch_related para las fotos
+
+        if ultimo_registro:
+            fecha_formateada = ultimo_registro.fechaCreacion.strftime('%d-%m-%Y %I:%M %p')
+
+            datos_basicos = {
+                'id': ultimo_registro.id,
+                'operador': ultimo_registro.idOperador.nombre,
+                'cliente': ultimo_registro.idCliente.nombre,
+                'fecha_subida': fecha_formateada,
+            }
+            
+            # ✅ Obtener las URLs de las fotos
+            fotos_urls = [foto.foto.url for foto in ultimo_registro.fotos.all()]
+            
+            datos_detallados = {
+                'residuos': {
+                    'plastico': str(ultimo_registro.plastico) if ultimo_registro.plastico is not None else '0',
+                    'papel': str(ultimo_registro.papel) if ultimo_registro.papel is not None else '0',
+                    'carton': str(ultimo_registro.carton) if ultimo_registro.carton is not None else '0',
+                    'film': str(ultimo_registro.film) if ultimo_registro.film is not None else '0',
+                    'latas': str(ultimo_registro.latas) if ultimo_registro.latas is not None else '0',
+                    'palets': str(ultimo_registro.palets) if ultimo_registro.palets is not None else '0',
+                    'palets_cantidad': str(ultimo_registro.palets_cantidad) if ultimo_registro.palets_cantidad is not None else '0',
+                    'chatarra': str(ultimo_registro.chatarra) if ultimo_registro.chatarra is not None else '0',
+                    'vidrio': str(ultimo_registro.vidrio) if ultimo_registro.vidrio is not None else '0',
+                    'tetrapack': str(ultimo_registro.tetrapack) if ultimo_registro.tetrapack is not None else '0',
+                },
+                'id': ultimo_registro.id,
+                'operador': datos_basicos['operador'],
+                'cliente': datos_basicos['cliente'],
+                'ubicacion': f"{ultimo_registro.idUbicacion.calle} {ultimo_registro.idUbicacion.numero}" if ultimo_registro.idUbicacion else 'N/A',
+                'fecha_registro_manual': ultimo_registro.fechaRegistro.strftime('%d-%m-%Y'),
+                'fecha_creacion': datos_basicos['fecha_subida'],
+                'fotos': fotos_urls,  # ✅ Agregar las fotos
+            }
+            
+            return JsonResponse({'success': True, 'registro_basico': datos_basicos, 'registro_detallado': datos_detallados})
+        
+        return JsonResponse({'success': False, 'error': 'No hay registros de residuos.'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 def procesarYResponderCertificado(doc, nombre_docx, nombre_pdf, request):
     import os

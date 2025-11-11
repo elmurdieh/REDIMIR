@@ -7,6 +7,8 @@ urlpatterns = [
     path("logout/", views.logout_admin, name='logout_admin'),
     path("panel/generar/", views.generar_certificado, name="generar_certificado"),
     path("panel/generar_certificado/", views.generarCertificado, name="generarCertificado"),
+    # Rutas Ajax
+    path('ajax/ultimo-registro/', views.obtener_ultimo_registro_ajax, name='ultimo_registro_ajax'),
     # Rutas Api graficos
     path('api/grafico-barras/', views.api_grafico_barras, name='api_grafico_barras'),
 ]

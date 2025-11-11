@@ -15,6 +15,7 @@
   display: flex;
   flex-direction: column;
   padding: 20px 0;
+  z-index: 1000;
 }
 #sidebar .logo img {
   max-width: 160px;
@@ -41,22 +42,12 @@
   color: var(--negro);
   border-radius: 5px;
 }
+/* ✅ CORRECCIÓN: Permitir scroll */
 #main-content {
   margin-left: 250px;
   padding: 20px;
-
-  /* --- AÑADIDO PARA EL LAYOUT 100VH --- */
-  
-  /* 1. Ocupa el 100% de la altura de la pantalla */
-  height: 100vh;
-  
-  /* 2. Incluye el padding DENTRO del 100vh (no lo suma) */
-  box-sizing: border-box; 
-  
-  /* 3. Conviértelo en un contenedor flex vertical */
-  display: flex;
-  flex-direction: column;
-  
-  /* 4. Evita que ESTE contenedor tenga scroll */
-  overflow: hidden; 
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
